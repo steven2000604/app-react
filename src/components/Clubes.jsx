@@ -18,22 +18,24 @@ class Clubes extends React.Component {
       registroSeleccionado: null,
     });
   };
+
   mostrarModalEditar = (id) => {
     this.setState({
       mostrarModal: true,
       registroSeleccionado: id,
     });
   };
+
   cerrarModal = () => {
-    this.setState({mostrarModal:false})
+    this.setState({ mostrarModal: false });
   };
-  alGuardar = () =>{
-    this.componentDidMount();//recargar datos
-    this.cerrarModal();//cerrar ventana modal
+
+  alGuardar = () => {
+    this.componentDidMount(); // recargar datos
+    this.cerrarModal(); // cerrar ventana modal
   };
 
   componentDidMount() {
-    //  console.log("Consultando API...");
     let url = "http://localhost:5000/clubes";
     axios
       .get(url)
@@ -41,21 +43,25 @@ class Clubes extends React.Component {
         this.setState({ registros: response.data });
       })
       .catch((error) => {
-        console.log("Error de conexion" + error.error);
+        console.log("Error de conexion: " + error);
       });
   }
+
   eliminar = async (id, nombre) => {
+    const { notificacion } = this.props;
     if (await confirm("Desea eliminar el club " + nombre + "?")) {
       axios
         .delete("http://localhost:5000/clubes/" + id)
-        .then((response) => {
-          const {notificacion} =  this.props;
+        .then(() => {
           this.componentDidMount();
-          notificacion ("Club " + nombre + " Eliminado")
+          if (typeof notificacion === "function") {
+            notificacion("Club " + nombre + " Eliminado");
+          }
         })
         .catch((error) => {
-          // eslint-disable-next-line no-undef
-          setNotificacion("Error al eliminar" + error.error);
+          if (typeof notificacion === "function") {
+            notificacion("Error al eliminar: " + error);
+          }
         });
     }
   };
@@ -68,7 +74,7 @@ class Clubes extends React.Component {
         <h1>Datos de clubes</h1>
         <input
           type="button"
-          className="btn btn-secondary"
+          className="btn btn-secondary mb-3"
           value="+ Nuevo"
           onClick={this.mostrarModalNuevo}
         />
@@ -83,60 +89,71 @@ class Clubes extends React.Component {
                 <th scope="col">Federacion</th>
                 <th scope="col">Estadio</th>
                 <th scope="col">Apodos</th>
+                <th scope="col">Acciones</th>
               </tr>
             </thead>
 
             <tbody>
-              {this.state.registros.map((value, index) => (
-                <tr key={index}>
-                  <th scope="row">{value.id}</th>
-                  <td>{value.nombre}</td>
-                  <td>{value.creacion}</td>
-                  <td>{value.sede}</td>
-                  <td>{value.federacion}</td>
-                  <td>{value.nombre_estadio}</td>
-                  <td>{value.apodos}</td>
-                  <td>
-                    <svg
-                      onClick={() => this.mostrarModalEditar(value)}
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#00bcd4"
-                      strokeWidth="1.75"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                      <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                      <path d="M16 5l3 3" />
-                    </svg>
+              {this.state.registros && this.state.registros.length > 0 ? (
+                this.state.registros.map((value, index) => (
+                  <tr key={index}>
+                    <th scope="row">{value.id}</th>
+                    <td>{value.nombre}</td>
+                    <td>{value.creacion}</td>
+                    <td>{value.sede}</td>
+                    <td>{value.federacion}</td>
+                    <td>{value.nombre_estadio}</td>
+                    <td>{value.apodos}</td>
+                    <td>
+                      <svg
+                        onClick={() => this.mostrarModalEditar(value)}
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#00bcd4"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ cursor: "pointer", marginRight: "10px" }}
+                      >
+                        <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                        <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                        <path d="M16 5l3 3" />
+                      </svg>
 
-                    <svg
-                      onClick={() => this.eliminar(value.id, value.nombre)}
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#ff2d55"
-                      strokeWidth="1.75"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M3 3l18 18" />
-                      <path d="M4 7h3m4 0h9" />
-                      <path d="M10 11l0 6" />
-                      <path d="M14 14l0 3" />
-                      <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l.077 -.923" />
-                      <path d="M18.384 14.373l.616 -7.373" />
-                      <path d="M9 5v-1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                    </svg>
+                      <svg
+                        onClick={() => this.eliminar(value.id, value.nombre)}
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#ff2d55"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ cursor: "pointer" }}
+                      >
+                        <path d="M3 3l18 18" />
+                        <path d="M4 7h3m4 0h9" />
+                        <path d="M10 11l0 6" />
+                        <path d="M14 14l0 3" />
+                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l.077 -.923" />
+                        <path d="M18.384 14.373l.616 -7.373" />
+                        <path d="M9 5v-1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                      </svg>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="8" className="text-center">
+                    No hay registros cargados
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -157,7 +174,7 @@ class Clubes extends React.Component {
   }
 }
 
-//Estilos para ventana modal
+// Estilos para ventana modal
 const modalStyles = {
   overlay: {
     position: "fixed",
@@ -181,9 +198,10 @@ const modalStyles = {
     overflowY: "auto",
   },
 };
+
 function ContenedorNavegacion(props) {
   let navigate = useNavigate();
-  return <Clubes {...props}navigate={navigate} />;
+  return <Clubes {...props} navigate={navigate} />;
 }
 
 export default ContenedorNavegacion;
