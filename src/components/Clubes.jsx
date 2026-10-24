@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import { confirm } from "./Confirmation";
 import Formulario from "./Formulario";
+
 class Clubes extends React.Component {
   state = {
     registros: [],
@@ -53,7 +54,8 @@ class Clubes extends React.Component {
           notificacion ("Club " + nombre + " Eliminado")
         })
         .catch((error) => {
-          notificacion("Error al eliminar" + error.error);
+          // eslint-disable-next-line no-undef
+          setNotificacion("Error al eliminar" + error.error);
         });
     }
   };
